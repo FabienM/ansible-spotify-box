@@ -1,0 +1,74 @@
+---
+- hosts: pi
+  remote_user: pi
+  become: yes
+  tasks:
+  - name: General - Add SSH authorized key
+    authorized_key:
+      user: pi
+      key: https://github.com/fabienm.keys
+  - name: General - Remove raspbian chromium
+    apt:
+      name: chromium-browser
+      state: absent
+  - name: General - Update packages
+    apt:
+      update_cache: yes
+      upgrade: yes
+  - name: Chromium - Install chromium with drm
+    apt:
+      deb: https://github.com/kusti8/chromium-build/releases/download/netflix-1.0.0/chromium-browser_56.0.2924.84-0ubuntu0.14.04.1.1011.deb
+  - name: Chromium - Run as kiosk on startup
+    lineinfile:
+      path: /home/pi/.config/lxsession/LXDE-pi/autostart
+      line: '@chromium-browser --kiosk https://open.spotify.com/collection/albums'
+  - name: LCD - Clone driver
+    git:
+      repo: https://github.com/goodtft/LCD-show.git
+      dest: /tmp/LCD-show
+      force: yes
+  - name: LCD - Set driver installer executable
+    file: 
+      path: /tmp/LCD-show/MPI3508-show
+      mode: 0755
+#  - name: LCD - Install driver
+#    command: /tmp/LCD-show/MPI3508-show
+  - name: Power Button - Install script
+    template:
+      src: templates/listen-for-shutdown.py.j2
+      dest: /usr/local/bin/listen-for-shutdown.py
+      mode: 0744
+  - name: Power Button - Install service
+    copy:
+      src: templates/listen-for-shutdown.sh.j2
+      dest: /etc/init.d/listen-for-shutdown.sh
+      mode: 0744
+  - name: Power Button - Enable service
+    service:
+      name: listen-for-shutdown.py
+      state: started
+      enabled: yes
+  - name: Splash Screen - disable_splash
+    lineinfile:
+      path: /boot/config.txt
+      line: 'disable_splash=1'
+  - name: Splash Screen - Set up cmdline
+    lineinfile:
+      path: /boot/cmdline.txt
+      regexp: '^dwc_otg\.lpm_enable'
+      line: 'dwc_otg.lpm_enable=0 console=tty1 console=ttyAMA0,115200 root=/dev/mmcblk0p2 rootfstype=ext4 elevator=deadline rootwait fbcon=map:10 fbcon=font:ProFont6x11 logo.nologo consoleblank=0 loglevel=1 quiet'
+  - name: Splash Screen - Install framebuffer image viewer
+    apt:
+      name: fbi
+  - name: Splash Screen - Install service
+    template:
+      src: templates/splashscreen.service.j2
+      dest: /etc/systemd/system/splashscreen.service
+  - name: Splash Screen - get image
+    get_url:
+      url: http://flashwallpapers.com/wp-content/uploads/2015/09/avengers-480x320.jpg
+      dest: /usr/local/splash.jpg
+  - name: Splash Screen - Enable service
+    service:
+      name: splashscreen
+      enabled: yes
