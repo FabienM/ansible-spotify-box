@@ -2,7 +2,6 @@
 
 ## Known issues
 
-* Chromium should be freeze at version 56 to avoid reinstallation
 * LCD driver installation makes the pi reboot (that's why it's commented)
 
 ## Ideas

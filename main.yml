@@ -7,10 +7,6 @@
     authorized_key:
       user: pi
       key: https://github.com/fabienm.keys
-  - name: General - Remove raspbian chromium
-    apt:
-      name: chromium-browser
-      state: absent
   - name: General - Update packages
     apt:
       update_cache: yes
@@ -18,6 +14,10 @@
   - name: Chromium - Install chromium with drm
     apt:
       deb: https://github.com/kusti8/chromium-build/releases/download/netflix-1.0.0/chromium-browser_56.0.2924.84-0ubuntu0.14.04.1.1011.deb
+    register: chromium
+  - name: Chromium - mark chromium-browser on hold
+    command: "apt-mark hold chromium-browser"
+    when: chromium.changed
   - name: Chromium - Run as kiosk on startup
     lineinfile:
       path: /home/pi/.config/lxsession/LXDE-pi/autostart
