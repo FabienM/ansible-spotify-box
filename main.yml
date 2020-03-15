@@ -11,24 +11,27 @@
     apt:
       update_cache: yes
       upgrade: yes
-  - name: Chromium - Install chromium with drm
+  - name: Chromium - Install chromium
     apt:
-      deb: https://github.com/kusti8/chromium-build/releases/download/netflix-1.0.0/chromium-browser_56.0.2924.84-0ubuntu0.14.04.1.1011.deb
-    register: chromium
-  - name: Chromium - mark chromium-browser on hold
-    command: "apt-mark hold chromium-browser"
-    when: chromium.changed
+      name: chromium-browser
+      state: latest
+  - name: Chromium - install libwidevinecdm.so
+    copy:
+      src: lib/libwidevinecdm.so
+      dest: /usr/lib/chromium-browser/
+      mode: 0755
   - name: Chromium - Run as kiosk on startup
     lineinfile:
       path: /home/pi/.config/lxsession/LXDE-pi/autostart
-      line: '@chromium-browser --kiosk https://open.spotify.com/collection/albums'
+      line: '@chromium-browser --user-agent="Mozilla/5.0 (X11; CrOS armv7l 11895.95.0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.37
+       │ 29.125 Safari/537.36" --kiosk https://open.spotify.com/collection/albums'
   - name: LCD - Clone driver
     git:
       repo: https://github.com/goodtft/LCD-show.git
       dest: /tmp/LCD-show
       force: yes
   - name: LCD - Set driver installer executable
-    file: 
+    file:
       path: /tmp/LCD-show/MPI3508-show
       mode: 0755
 #  - name: LCD - Install driver
