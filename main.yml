@@ -23,8 +23,7 @@
   - name: Chromium - Run as kiosk on startup
     lineinfile:
       path: /home/pi/.config/lxsession/LXDE-pi/autostart
-      line: '@chromium-browser --user-agent="Mozilla/5.0 (X11; CrOS armv7l 11895.95.0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.37
-       │ 29.125 Safari/537.36" --kiosk https://open.spotify.com/collection/albums'
+      line: '@chromium-browser --user-agent="Mozilla/5.0 (X11\; CrOS armv7l 11895.95.0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.125 Safari/537.36" --kiosk https://open.spotify.com/collection/albums'
   - name: LCD - Clone driver
     git:
       repo: https://github.com/goodtft/LCD-show.git
@@ -69,7 +68,7 @@
       dest: /etc/systemd/system/splashscreen.service
   - name: Splash Screen - get image
     get_url:
-      url: http://flashwallpapers.com/wp-content/uploads/2015/09/avengers-480x320.jpg
+      url: https://d.newsweek.com/en/full/1518010/pokemon-sword-shield-galar-forms-zigzagoon.jpg
       dest: /usr/local/splash.jpg
   - name: Splash Screen - Enable service
     service:
